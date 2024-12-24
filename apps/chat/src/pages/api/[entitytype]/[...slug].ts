@@ -83,8 +83,8 @@ export default handler;
 
 export const config = {
   api: {
-    bodyParser: false,
-    responseLimit: false,
+    bodyParser: { sizeLimit: '10mb' },
+    responseLimit: '10mb',
   },
 };
 interface PutOptions {
