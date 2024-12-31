@@ -74,7 +74,7 @@ import throttle from 'lodash/throttle';
 
 const scrollThrottlingTimeout = 250;
 
-export const ChatView = memo(() => {
+export const ChatView = memo(function ChatView() {
   const dispatch = useAppDispatch();
 
   const models = useAppSelector(ModelsSelectors.selectModels);
@@ -815,8 +815,6 @@ export const ChatView = memo(() => {
     </div>
   );
 });
-
-ChatView.displayName = 'ChatView';
 
 export function Chat() {
   const { t } = useTranslation(Translation.Chat);

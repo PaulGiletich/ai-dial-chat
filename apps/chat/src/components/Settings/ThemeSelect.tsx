@@ -18,10 +18,10 @@ interface ThemeSelectProps {
   onThemeChangeHandler: (theme: string) => void;
 }
 
-export const ThemeSelect = ({
+export function ThemeSelect({
   localTheme,
   onThemeChangeHandler,
-}: ThemeSelectProps) => {
+}: ThemeSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const { t } = useTranslation(Translation.Settings);
@@ -81,4 +81,4 @@ export const ThemeSelect = ({
       </div>
     </div>
   );
-};
+}

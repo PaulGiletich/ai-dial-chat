@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const PlotlyComponent = memo(
-  ({ plotlyData: { layout, ...data } }: Props) => {
+  function PlotlyComponent({ plotlyData: { layout, ...data } }: Props) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [currentLayout, setCurrentLayout] = useState<Partial<Layout>>(layout);
@@ -43,4 +43,3 @@ export const PlotlyComponent = memo(
   },
   (prevProps, nextProps) => isEqual(prevProps, nextProps),
 );
-PlotlyComponent.displayName = 'PlotlyComponent';

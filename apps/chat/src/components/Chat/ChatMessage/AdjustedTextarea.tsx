@@ -9,7 +9,10 @@ type Props = React.DetailedHTMLProps<
   maxHeight?: number;
 };
 
-export const AdjustedTextarea = React.forwardRef((props: Props, ref) => {
+export const AdjustedTextarea = React.forwardRef(function AdjustedTextarea(
+  props: Props,
+  ref,
+) {
   const hiddenTextareaRef = useRef<HTMLTextAreaElement>(null);
   const mainTextareaRef = useRef<HTMLTextAreaElement>(null);
   useImperativeHandle(ref, () => mainTextareaRef.current); // proxy ref
@@ -72,5 +75,3 @@ export const AdjustedTextarea = React.forwardRef((props: Props, ref) => {
     </>
   );
 });
-
-AdjustedTextarea.displayName = 'AdjustedTextarea';

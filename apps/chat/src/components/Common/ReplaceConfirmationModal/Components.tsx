@@ -44,10 +44,10 @@ interface ReplaceSelectorProps {
   onOptionChangeHandler: (optionId: string) => void;
 }
 
-export const ReplaceSelector = ({
+export function ReplaceSelector({
   selectedOption,
   onOptionChangeHandler,
-}: ReplaceSelectorProps) => {
+}: ReplaceSelectorProps) {
   const { t } = useTranslation(Translation.Chat);
   const replaceSelectorOptions: SelectOption[] = [
     ReplaceOptions.Postfix,
@@ -66,7 +66,7 @@ export const ReplaceSelector = ({
       optionClassName="pl-5"
     />
   );
-};
+}
 
 interface EntityRowProps {
   children?: ReactElement;

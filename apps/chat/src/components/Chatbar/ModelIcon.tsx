@@ -25,72 +25,69 @@ interface Props {
   enableShrinking?: boolean;
 }
 
-const ModelIconTemplate = memo(
-  ({
-    entity,
-    size,
-    animate,
-    entityId,
-    enableShrinking,
-  }: Omit<Props, 'isCustomTooltip'>) => {
-    const ref = useRef<HTMLImageElement>(null);
-    const fallbackUrl =
-      entity?.type === EntityType.Addon
-        ? getThemeIconUrl('default-addon')
-        : getThemeIconUrl('default-model');
-    const description = entity ? getOpenAIEntityFullName(entity) : entityId;
+const ModelIconTemplate = memo(function ModelIconTemplate({
+  entity,
+  size,
+  animate,
+  entityId,
+  enableShrinking,
+}: Omit<Props, 'isCustomTooltip'>) {
+  const ref = useRef<HTMLImageElement>(null);
+  const fallbackUrl =
+    entity?.type === EntityType.Addon
+      ? getThemeIconUrl('default-addon')
+      : getThemeIconUrl('default-model');
+  const description = entity ? getOpenAIEntityFullName(entity) : entityId;
 
-    const getIconUrl = (entity: DialAIEntity | undefined) => {
-      if (!entity?.iconUrl) return fallbackUrl;
+  const getIconUrl = (entity: DialAIEntity | undefined) => {
+    if (!entity?.iconUrl) return fallbackUrl;
 
-      if (isApplicationId(entity.id)) {
-        return constructPath('api', ApiUtils.encodeApiUrl(entity.iconUrl));
-      }
+    if (isApplicationId(entity.id)) {
+      return constructPath('api', ApiUtils.encodeApiUrl(entity.iconUrl));
+    }
 
-      return `${getThemeIconUrl(entity.iconUrl)}?v2`;
-    };
+    return `${getThemeIconUrl(entity.iconUrl)}?v2`;
+  };
 
-    const handleError = useCallback(() => {
-      if (ref.current) {
-        ref.current.src = fallbackUrl;
-        ref.current.onerror = null;
-      }
-    }, [fallbackUrl]);
+  const handleError = useCallback(() => {
+    if (ref.current) {
+      ref.current.src = fallbackUrl;
+      ref.current.onerror = null;
+    }
+  }, [fallbackUrl]);
 
-    return (
-      <span
-        className={classNames(
-          'relative inline-block shrink-0 bg-model-icon leading-none',
-          entity?.type !== EntityType.Addon && 'overflow-hidden rounded-full',
-          animate && 'animate-bounce',
-          enableShrinking && 'shrink',
-        )}
+  return (
+    <span
+      className={classNames(
+        'relative inline-block shrink-0 bg-model-icon leading-none',
+        entity?.type !== EntityType.Addon && 'overflow-hidden rounded-full',
+        animate && 'animate-bounce',
+        enableShrinking && 'shrink',
+      )}
+      style={{ height: `${size}px`, width: `${size}px` }}
+      data-qa="entity-icon"
+    >
+      <img
+        key={entityId}
+        src={getIconUrl(entity)}
+        width={size}
+        height={size}
+        onError={handleError}
+        data-image-name={description}
+        ref={ref}
         style={{ height: `${size}px`, width: `${size}px` }}
-        data-qa="entity-icon"
-      >
-        <img
-          key={entityId}
-          src={getIconUrl(entity)}
-          width={size}
-          height={size}
-          onError={handleError}
-          data-image-name={description}
-          ref={ref}
-          style={{ height: `${size}px`, width: `${size}px` }}
-        />
-      </span>
-    );
-  },
-);
-ModelIconTemplate.displayName = 'ModelIconTemplate';
+      />
+    </span>
+  );
+});
 
-export const ModelIcon = ({
+export function ModelIcon({
   entity,
   entityId,
   size,
   animate,
   isCustomTooltip,
-}: Props) => {
+}: Props) {
   const name = entity ? getOpenAIEntityFullName(entity) : entityId;
   const fullTooltip = entity?.version ? `${name}\nv. ${entity.version}` : name;
 
@@ -108,4 +105,4 @@ export const ModelIcon = ({
       />
     </Tooltip>
   );
-};
+}

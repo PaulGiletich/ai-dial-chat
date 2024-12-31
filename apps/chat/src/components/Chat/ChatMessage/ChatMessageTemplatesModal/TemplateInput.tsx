@@ -9,11 +9,11 @@ interface TemplateInputProps extends TextareaProps {
   dataQA?: string;
 }
 
-export const TemplateInput = forwardRef(
-  (
-    { dataQA, validationError, className, ...rest }: TemplateInputProps,
-    ref: LegacyRef<HTMLTextAreaElement> | undefined,
-  ) => (
+export const TemplateInput = forwardRef(function TemplateInput(
+  { dataQA, validationError, className, ...rest }: TemplateInputProps,
+  ref: LegacyRef<HTMLTextAreaElement> | undefined,
+) {
+  return (
     <div className="flex grow basis-0 flex-col text-left">
       <textarea
         {...rest}
@@ -32,6 +32,5 @@ export const TemplateInput = forwardRef(
         <span className="text-xxs text-error">{validationError}</span>
       )}
     </div>
-  ),
-);
-TemplateInput.displayName = 'TemplateInput';
+  );
+});

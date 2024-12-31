@@ -71,7 +71,7 @@ export const ControlledFormField = <T extends FieldValues, K extends Path<T>>({
 };
 
 export function withController<T extends object>(Component: ComponentType<T>) {
-  function ControllerWrapper<F extends FieldValues, K extends Path<F>>({
+  return function ControllerWrapper<F extends FieldValues, K extends Path<F>>({
     control,
     name,
     rules,
@@ -82,9 +82,5 @@ export function withController<T extends object>(Component: ComponentType<T>) {
         {({ field }) => <Component {...(props as T)} {...field} />}
       </ControlledFormField>
     );
-  }
-
-  ControllerWrapper.displayName = 'ControllerWrapper';
-
-  return ControllerWrapper;
+  };
 }
