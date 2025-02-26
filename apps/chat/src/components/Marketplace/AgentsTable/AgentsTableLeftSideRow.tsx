@@ -6,7 +6,7 @@ import { useScreenState } from '@/src/hooks/useScreenState';
 
 import { getModelShortDescription } from '@/src/utils/app/application';
 
-import { FeatureType } from '@/src/types/common';
+import { FeatureType, ScreenState } from '@/src/types/common';
 import { DialAIEntityModel } from '@/src/types/models';
 
 import { TableIconSizes } from '@/src/constants/marketplace';
@@ -52,7 +52,16 @@ export const AgentsTableLeftSideRow: React.FC<Props> = memo(
       >
         <div className="flex h-full items-center gap-3 md:gap-4">
           <div className="flex items-center gap-2 md:gap-4">
-            <AgentBookmark entity={entity} onBookmarkClick={onBookmarkClick} />
+            <AgentBookmark
+              className={
+                screenState !== ScreenState.TABLET &&
+                screenState !== ScreenState.MOBILE
+                  ? 'hidden'
+                  : ''
+              }
+              entity={entity}
+              onBookmarkClick={onBookmarkClick}
+            />
             <ShareIcon
               {...entity}
               isHighlighted={false}
@@ -69,7 +78,7 @@ export const AgentsTableLeftSideRow: React.FC<Props> = memo(
           </div>
           <div>
             <div className="flex">
-              <div className="line-clamp-1 max-w-screen-sm text-base font-semibold leading-5">
+              <div className="line-clamp-1 max-w-screen-sm break-all text-base font-semibold leading-5">
                 {entity.name}
               </div>
               <FunctionStatusIndicator entity={entity} />

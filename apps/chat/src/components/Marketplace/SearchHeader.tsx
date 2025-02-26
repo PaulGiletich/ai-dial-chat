@@ -30,6 +30,8 @@ import { MarketplaceTabs } from '@/src/constants/marketplace';
 
 import ContextMenu from '@/src/components/Common/ContextMenu';
 
+import { ViewToggler } from './ViewToggler';
+
 import { Feature } from '@epam/ai-dial-shared';
 
 // const countLabel = {
@@ -116,45 +118,46 @@ export const SearchHeader = () => {
   );
 
   const menuItems: MenuItem[] = useMemo(
-    () => [
-      {
-        name: t('Custom App'),
-        type: ApplicationType.CUSTOM_APP,
-        dataQa: 'add-custom-app',
-        display: isCustomApplicationsEnabled,
-        onClick: (e: React.MouseEvent) => {
-          e.stopPropagation();
-          router.push(`/apps-editor/${ApplicationType.CUSTOM_APP}`);
+    () =>
+      [
+        {
+          name: t('Custom app'),
+          type: ApplicationType.CUSTOM_APP,
+          dataQa: 'add-custom-app',
+          display: isCustomApplicationsEnabled,
+          onClick: (e: React.MouseEvent) => {
+            e.stopPropagation();
+            router.push(`/apps-editor/${ApplicationType.CUSTOM_APP}`);
+          },
         },
-      },
-      {
-        name: t('Code App'),
-        dataQa: 'add-startable-app',
-        type: ApplicationType.CODE_APP,
-        display: isCodeAppsEnabled,
-        onClick: (e: React.MouseEvent) => {
-          e.stopPropagation();
-          router.push(`/apps-editor/${ApplicationType.CODE_APP}`);
+        {
+          name: t('Code app'),
+          dataQa: 'add-startable-app',
+          type: ApplicationType.CODE_APP,
+          display: isCodeAppsEnabled,
+          onClick: (e: React.MouseEvent) => {
+            e.stopPropagation();
+            router.push(`/apps-editor/${ApplicationType.CODE_APP}`);
+          },
         },
-      },
-      ...(applicationTypeSchemas?.map((schema: ApplicationTypeSchema) => ({
-        name: schema.displayName,
-        type: schema.displayName,
-        dataQa: `add-${schema.displayName}`,
-        display: true,
-        onClick: (e: React.MouseEvent) => {
-          e.stopPropagation();
-          if (detailedApplicationTypeSchema?.$id !== schema.id) {
-            dispatch(
-              ApplicationTypesSchemasActions.fetchDetailedApplicationTypeSchema(
-                schema.id,
-              ),
-            );
-          }
-          router.push(`/apps-editor/${encode(schema.id)}`);
-        },
-      })) ?? []),
-    ],
+        ...(applicationTypeSchemas?.map((schema: ApplicationTypeSchema) => ({
+          name: t(schema.displayName),
+          type: schema.displayName,
+          dataQa: `add-${schema.displayName}`,
+          display: true,
+          onClick: (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (detailedApplicationTypeSchema?.$id !== schema.id) {
+              dispatch(
+                ApplicationTypesSchemasActions.fetchDetailedApplicationTypeSchema(
+                  schema.id,
+                ),
+              );
+            }
+            router.push(`/apps-editor/${encode(schema.id)}`);
+          },
+        })) ?? []),
+      ].sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)),
     [
       t,
       isCustomApplicationsEnabled,
@@ -172,7 +175,7 @@ export const SearchHeader = () => {
 
   return (
     <div className="flex w-full gap-4 sm:justify-end md:w-auto">
-      <div className="relative h-[38px] w-full shrink-0 sm:w-[315px] md:w-[560px]">
+      <div className="relative h-[38px] w-full shrink-0 sm:w-[315px] md:w-[500px]">
         <IconSearch
           className="absolute left-3 top-1/2 -translate-y-1/2"
           size={18}
@@ -186,6 +189,7 @@ export const SearchHeader = () => {
           className="w-full rounded border border-primary bg-transparent py-2.5 pl-[38px] pr-3 leading-4 outline-none placeholder:text-secondary focus-visible:border-accent-primary"
         />
       </div>
+      {enabledFeatures.has(Feature.MarketplaceTableView) && <ViewToggler />}
       {selectedTab === MarketplaceTabs.MY_WORKSPACE && (
         <AddAppButton menuItems={menuItems} />
       )}
