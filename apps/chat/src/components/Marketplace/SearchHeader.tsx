@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { useTranslation } from '@/src/hooks/useTranslation';
 
 import { encode } from '@/src/utils/app/application-type-schema';
+import { getAppEditorRoute } from '@/src/utils/app/route';
 
 import { ApplicationTypeSchema } from '@/src/types/application-type-schema';
 import { ApplicationType } from '@/src/types/applications';
@@ -19,6 +20,7 @@ import {
   ApplicationTypesSchemasActions,
   ApplicationTypesSchemasSelectors,
 } from '@/src/store/applicationTypeSchemas/applicationTypeSchemas.reducer';
+import { AuthSelectors } from '@/src/store/auth/auth.reducers';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import {
   MarketplaceActions,
@@ -103,6 +105,10 @@ export const SearchHeader = () => {
   const enabledFeatures = useAppSelector(
     SettingsSelectors.selectEnabledFeatures,
   );
+  const canCreateCodeApps = useAppSelector(
+    AuthSelectors.selectCanCreateCodeApps,
+  );
+
   const isCustomApplicationsEnabled = enabledFeatures.has(
     Feature.CustomApplications,
   );
@@ -127,17 +133,17 @@ export const SearchHeader = () => {
           display: isCustomApplicationsEnabled,
           onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
-            router.push(`/apps-editor/${ApplicationType.CUSTOM_APP}`);
+            router.push(getAppEditorRoute(ApplicationType.CUSTOM_APP));
           },
         },
         {
           name: t('Code app'),
           dataQa: 'add-startable-app',
           type: ApplicationType.CODE_APP,
-          display: isCodeAppsEnabled,
+          display: isCodeAppsEnabled && canCreateCodeApps,
           onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
-            router.push(`/apps-editor/${ApplicationType.CODE_APP}`);
+            router.push(getAppEditorRoute(ApplicationType.CODE_APP));
           },
         },
         ...(applicationTypeSchemas?.map((schema: ApplicationTypeSchema) => ({
@@ -154,18 +160,19 @@ export const SearchHeader = () => {
                 ),
               );
             }
-            router.push(`/apps-editor/${encode(schema.id)}`);
+            router.push(getAppEditorRoute(encode(schema.id)));
           },
         })) ?? []),
       ].sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)),
     [
       t,
       isCustomApplicationsEnabled,
-      applicationTypeSchemas,
       isCodeAppsEnabled,
+      canCreateCodeApps,
+      applicationTypeSchemas,
       router,
+      detailedApplicationTypeSchema?.$id,
       dispatch,
-      detailedApplicationTypeSchema,
     ],
   );
 
@@ -175,7 +182,7 @@ export const SearchHeader = () => {
 
   return (
     <div className="flex w-full gap-4 sm:justify-end md:w-auto">
-      <div className="relative h-[38px] w-full shrink-0 sm:w-[315px] md:w-[500px]">
+      <div className="relative flex h-[38px] shrink-0 grow sm:w-[315px] md:w-[500px]">
         <IconSearch
           className="absolute left-3 top-1/2 -translate-y-1/2"
           size={18}
@@ -186,7 +193,7 @@ export const SearchHeader = () => {
           type="text"
           value={searchTerm}
           onChange={onSearchChange}
-          className="w-full rounded border border-primary bg-transparent py-2.5 pl-[38px] pr-3 leading-4 outline-none placeholder:text-secondary focus-visible:border-accent-primary"
+          className="grow rounded border border-primary bg-transparent py-2.5 pl-[38px] pr-3 leading-4 outline-none placeholder:text-secondary focus-visible:border-accent-primary"
         />
       </div>
       {enabledFeatures.has(Feature.MarketplaceTableView) && <ViewToggler />}

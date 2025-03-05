@@ -46,7 +46,8 @@ import { AppEpic } from '@/src/types/store';
 import { UIActions } from '@/src/store/ui/ui.reducers';
 
 import { errorsMessages } from '../../constants/errors';
-import { DeleteType } from '@/src/constants/marketplace';
+import { DeleteType, MarketplaceTabs } from '@/src/constants/marketplace';
+import { Routes } from '@/src/constants/routes';
 
 import { ApplicationActions } from '../application/application.reducers';
 import { ApplicationTypesSchemasActions } from '../applicationTypeSchemas/applicationTypeSchemas.reducer';
@@ -97,14 +98,15 @@ const createApplicationEpic: AppEpic = (action$) =>
         ),
         map((action) => {
           if (
-            action.type === 'models/addModels' &&
-            action.payload.models?.[0]?.id
+            ModelsActions.addModels.match(action) &&
+            action.payload.models?.[0]?.reference
           ) {
             Router.push({
-              pathname: `/apps-editor/[slug]/settings`,
+              pathname: Routes.AppsEditorSettings,
               query: {
                 slug,
-                id: encodeURIComponent(action.payload.models[0].reference),
+                id: action.payload.models[0].reference,
+                add: true,
               },
             });
           }
@@ -155,21 +157,24 @@ const updateApplicationEpic: AppEpic = (action$, state$) =>
   action$.pipe(
     filter(ApplicationActions.update.match),
     switchMap(({ payload }) => {
-      if (payload.applicationData.sharedWithMe) {
-        return of(
-          ApplicationActions.edit({
-            oldApplication: payload.oldApplication,
-            updatedApplication: payload.applicationData,
-            redirectUrl: payload.redirectUrl,
-            schema: payload.schema,
-          }),
-        );
-      }
-
       const initialActions$ = of(
         ApplicationActions.updateStart(),
         ApplicationActions.setShouldSaveApplication(false),
       );
+
+      if (payload.applicationData.sharedWithMe) {
+        return concat(
+          initialActions$,
+          of(
+            ApplicationActions.edit({
+              oldApplication: payload.oldApplication,
+              updatedApplication: payload.applicationData,
+              redirectUrl: payload.redirectUrl,
+              schema: payload.schema,
+            }),
+          ),
+        );
+      }
 
       const updatedCustomApplication = regenerateApplicationId(
         payload.applicationData,
@@ -215,16 +220,7 @@ const updateApplicationEpic: AppEpic = (action$, state$) =>
               updatedCustomApplication,
               payload.schema,
             ).pipe(
-              switchMap(() =>
-                of(
-                  ApplicationActions.updateSuccess(updatedCustomApplication),
-                  ModelsActions.updateModel({
-                    model: updatedCustomApplication,
-                    oldApplicationId: payload.oldApplication.id,
-                  }),
-                ),
-              ),
-              tap(() => {
+              switchMap(() => {
                 if (
                   payload.redirectUrl &&
                   !state$.value.application.exitAfterSave
@@ -233,13 +229,20 @@ const updateApplicationEpic: AppEpic = (action$, state$) =>
                     pathname: payload.redirectUrl,
                     query: { id: updatedCustomApplication.id },
                   });
-                }
-                if (state$.value.application.exitAfterSave) {
+                } else if (state$.value.application.exitAfterSave) {
                   Router.push({
-                    pathname: '/marketplace',
-                    query: { tab: 'workspace' },
+                    pathname: Routes.Marketplace,
+                    query: { tab: MarketplaceTabs.MY_WORKSPACE },
                   });
                 }
+
+                return of(
+                  ApplicationActions.updateSuccess(updatedCustomApplication),
+                  ModelsActions.updateModel({
+                    model: updatedCustomApplication,
+                    oldApplicationId: payload.oldApplication.id,
+                  }),
+                );
               }),
               catchError((err) => {
                 console.error('Failed to update application:', err);
@@ -271,7 +274,10 @@ const editApplicationEpic: AppEpic = (action$, state$) =>
         return EMPTY;
       }
 
-      return ApplicationService.edit(payload.updatedApplication).pipe(
+      return ApplicationService.edit(
+        payload.updatedApplication,
+        payload.schema,
+      ).pipe(
         switchMap(() =>
           of(
             ApplicationActions.editSuccess(),
@@ -290,8 +296,8 @@ const editApplicationEpic: AppEpic = (action$, state$) =>
           }
           if (state$.value.application.exitAfterSave) {
             Router.push({
-              pathname: '/marketplace',
-              query: { tab: 'workspace' },
+              pathname: Routes.Marketplace,
+              query: { tab: MarketplaceTabs.MY_WORKSPACE },
             });
           }
         }),
@@ -598,7 +604,7 @@ const enterEditModeEpic: AppEpic = (action$, state$, { router }) =>
         tap(() => {
           ConversationsActions.setTalkToConversationId(null);
           router.push({
-            pathname: `/apps-editor/[slug]/settings`,
+            pathname: Routes.AppsEditorSettings,
             query: {
               id: encodeURIComponent(entity.reference),
               slug: isApplicationType(applicationType)
