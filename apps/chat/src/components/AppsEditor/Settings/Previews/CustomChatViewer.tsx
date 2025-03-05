@@ -89,6 +89,12 @@ export const CustomChatViewer: React.FC<Props> = ({
               modelId: conversation.model.id,
             }),
           );
+          dispatch(
+            ConversationsActions.updateConversationSuccess({
+              id: conversation.id,
+              conversation,
+            }),
+          );
         }
       }
     },
