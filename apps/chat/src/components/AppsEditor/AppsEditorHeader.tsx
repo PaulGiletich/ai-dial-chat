@@ -171,7 +171,8 @@ export const AppsEditorHeader: React.FC<AppsEditorHeaderProps> = ({
         </div>
 
         <div className="flex h-full items-center space-x-2">
-          {(isEditApplication && applicationTypeDisplayName !== 'Mindmap') ||
+          {isEditApplication &&
+          applicationTypeDisplayName !== 'Mindmap' &&
           applicationTypeDisplayName !== 'Mindmap LOTR' ? (
             <button
               className="button flex items-center space-x-1 text-accent-primary md:flex"
